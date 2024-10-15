@@ -1,0 +1,7 @@
+helm-common-team-rnd:
+  # config variables deploy
+  envVariables:
+    DATA_DOMAIN_HOST: "http://prompt-api-staging.example.com"
+    OPENAI_MODEL: "gpt-3.5-turbo-1106"
+    OPENAI_TEMPERATURE: "1.0"
+    MAX_BATCH_SIZE: "30"

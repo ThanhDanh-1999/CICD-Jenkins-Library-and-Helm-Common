@@ -1,0 +1,144 @@
+helm-common-team-rnd:
+  environment: testing
+  # .Release.Name = your-service-name-testing
+  replicaCount: 1
+  image:
+    repository: danhnt/semantic-clustering-testing
+    tag: latest
+
+  containers:
+    - name: "request-consumer"
+      enable: true 
+      script: "./scripts/run_request_consumer.sh"
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  podAnnotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8000'
+
+  persistence:
+    ## pvc name default: .Release.Name = your-service-name-testing
+    enabled: false
+    storageClass: "nfs-client"
+    accessModes:
+      - ReadWriteMany
+    size: 8Gi
+
+  # volumes:
+  #   - name: pvc-store
+  #     persistentVolumeClaim:
+  #       claimName: semantic-clustering ## pvc name default: .Release.Name = your-service-name-testing
+
+  # volumeMounts:
+  #   - name: pvc-store
+  #     mountPath: /logs
+
+  envVariablesServices:
+    redis:
+      - enable: false
+        envHost: REDIS_HOST
+        envPort: REDIS_PORT
+        envDatabase: REDIS_DB
+        envPassword: REDIS_PASSWORD
+    rabbitmq:
+      - enable: true
+        envHost: RABBIT_MQ_HOST
+        envPort: RABBIT_MQ_PORT
+        envUser: RABBIT_MQ_USERNAME
+        envPassword: RABBIT_MQ_PASSWORD
+        account:
+          key_username: semantic-clustering-username
+          key_password: semantic-clustering-password
+    mysql:
+      - enable: false
+        envHost: MYSQL_HOST
+        envPort: MYSQL_PORT
+        envUser: MYSQL_USER
+        envPassword: MYSQL_PASSWORD
+        account:
+          key_username: semantic-clustering-username
+          key_password: semantic-clustering-password
+    mongo:
+      - enable: false
+        envHost: MONGODB_HOST
+        envPort: MONGODB_PORT
+        envUser: MONGODB_USERNAME
+        envPassword: MONGODB_PASSWORD
+        account:
+          key_username: semantic-clustering-username
+          key_password: semantic-clustering-password
+    kafka:
+      enable: false
+    solr_master: 
+      - enable: false
+        envHost: SOLR_MASTER_HOST
+        envPort: SOLR_MASTER_PORT
+        envUser: SOLR_MASTER_USERNAME
+        envPassword: SOLR_MASTER_PASSWORD
+        account:
+          key_username: semantic-clustering-username
+          key_password: semantic-clustering-password
+    solr_topic:
+      - enable: true
+        envHost: SOLR_DOMAIN
+        envPort: SOLR_PORT
+        envUser: SOLR_USERNAME
+        envPassword: SOLR_PASSWORD
+        account:
+          key_username: semantic-clustering-username
+          key_password: semantic-clustering-password
+    secret_source:
+      - enable: true
+        name: semantic-clustering
+        envs:
+          EMBEDDING_SERVICE_USERNAME: embedding_service_username
+          EMBEDDING_SERVICE_PASSWORD: embedding_service_password
+          EMBEDDING_SERVICE_HOST: embedding_service_host
+
+  cluster: "ovh" ### Deploy to "k8s-ovh | k8s-local"
+
+  ingress:
+    enabled: false
+    annotations:
+      kubernetes.io/ingress.class: kong
+    paths: [ '/' ]
+    hostProduction:
+      - semantic-clustering.example.com
+    hostTesting: 
+      - semantic-clustering-testing.datatrend.io
+    hostStaging: 
+      - semantic-clustering-staging.example.com
+
+
+  # resources:
+  #   limits:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  nodeSelector: 
+    node-type: "rnd"
+
+  tolerations:
+    - key: node-type
+      value: rnd
+      effect: NoSchedule
+    # - operator: Exists
+    #   effect: NoSchedule
+    # - operator: Exists
+    #   effect: NoExecute
+  affinity: {}
+
+
+  workload:
+    # -- kind of workload, support Deployment/StatefulSet
+    kind: Deployment
+
+  # # config variables deploy
+  # envVariables:
+  #   TEST_TEST: "test-test"

@@ -1,0 +1,19 @@
+helm-common-team-rnd:
+  environment: staging
+  # config variables deploy
+  envVariables:
+    KAFKA_BOOTSTRAP_SERVERS: "kafka01:9092,kafka02:9092,kafka03:9092"
+    KAFKA_COLLECTOR_GROUP_ID: "rnd_staging.trend_spotter_prod"
+    KAFKA_COLLECTOR_AUTO_OFFSET_RESET: "earliest"
+    KAFKA_COLLECTOR_AUTO_COMMIT: "False"
+    KAFKA_COLLECTOR_NUM_CONSUMER: "32"
+    KAFKA_COLLECTOR_BATCH_SIZE: "1000"
+    KAFKA_COLLECTOR_INTERVAL_TIME: "5"
+    KAFKA_WRITER_GROUP_ID: "rnd_staging.clean_mention_prod"
+    KAFKA_WRITER_AUTO_OFFSET_RESET: "earliest"
+    KAFKA_WRITER_AUTO_COMMIT: "False"
+    KAFKA_WRITER_NUM_PARTITION: "3"
+    KAFKA_WRITER_BATCH_SIZE: "10000"
+    KAFKA_WRITER_INTERVAL_TIME: "2"
+    KAFKA_WRITER_CONSUMER_TIMEOUT: "120"
+    KAFKA_WRITER_WRITER_TYPE: "disk"

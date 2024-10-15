@@ -1,0 +1,14 @@
+helm-common-team-rnd:
+  environment: staging
+  # config variables deploy
+  envVariables:
+    # config mongo
+    MONGODB_DATABASE: 'eci'
+    MONGODB_BRAND_LIST_COLLECTION: "rnd.staging.eci_brand_extraction.brand_details"
+    # config redis
+    REDIS_PARENT_CATE_COUNTER: "rnd.staging.eci_brand_extraction.parent_cate_count"
+    REDIS_BRAND_LIST_CACHING: "rnd.staging.eci_brand_extraction.brand_frequency"
+    # config redis stack
+    REDIS_STACK_VERIFIED_BRAND_LIST: "idx:final_brand_14"
+    # config mysql
+    MYSQL_DATABASE: "eca_reports"

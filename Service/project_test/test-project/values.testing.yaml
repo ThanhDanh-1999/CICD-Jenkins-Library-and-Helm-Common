@@ -1,0 +1,21 @@
+helm-common-team-rnd:
+  environment: testing
+  # config variables deploy
+  envVariables:
+    # variables orther:
+    GENERIC_LINK_CLASSIFICATION_PATH: "./src/classification/models/generic_link_classification.joblib"
+    LOG_LEVEL: "INFO"
+    LOG_PATH: "/logs/news_classification"
+    MIN_ARTICLE: "30"
+    MIN_CATEGORY: "10"
+    NON_CONTENT_CLASSIFICATION_PATH: "./src/classification/models/non_content_classification.joblib"
+    # variables mongodb:
+    MONGODB_COLLECTION: "rnd.testing.news_classification.sample_mentions"
+    MONGODB_DATABASE: "news_classification"
+    # variables rabbitmq:
+    RABBIT_MQ_DOMAIN_RECEIVE_QUEUE: "rnd.testing.news_classification.domain_analytic_request"
+    RABBIT_MQ_DOMAIN_STAGE_QUEUE: "rnd.testing.news_classification.domain_notification_status"
+    # variables redis:
+    REDIS_HEALTH_CHECK_INTERVAL: "30"
+    REDIS_KEY: "rnd.testing.news_classification.patterns_storage"
+    REDIS_TIME_TO_LIVE: "864000"

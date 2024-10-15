@@ -1,0 +1,224 @@
+# Default values for helm-common.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+environment: testing
+# .Release.Name = your-service-name-testing
+
+# replicaCount: 1
+
+image:
+  repository: danhnt/helm-common-testing
+  tag: stable
+  pullPolicy: IfNotPresent
+
+# nameOverride: ""
+# fullnameOverride: ""
+
+# containers:
+#   - name: "service-00"
+#     enable: true 
+#     script: "./scripts/service_00.sh"  
+#     metric_port: 8000
+#   - name: "service-01"
+#     enable: true
+#     script: "./scripts/service_01.sh"
+
+service:
+  type: ClusterIP
+  port: 80
+
+## prometheus
+# podAnnotations:
+#   prometheus.io/scrape: 'true'
+#   prometheus.io/port: '8000'
+
+persistence:
+  enabled: false
+  ## A manually managed Persistent Volume and Claim
+  ## Requires persistence.enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  ##
+  # existingClaim: false
+
+  ## Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "nfs-client"
+  accessModes:
+    - ReadWriteMany
+  size: 8Gi
+  annotations: {}
+
+# volumes:
+#   - name: pvc-store-00
+#     persistentVolumeClaim:
+#       claimName: pvc-store-00
+#   - name: pvc-store-01
+#     persistentVolumeClaim:
+#       claimName: pvc-store-01
+
+# volumeMounts:
+#   - name: pvc-store-00
+#     mountPath: /logs
+#   - name: pvc-store-01
+#     mountPath: /logs
+
+      # {{- if .Values.volumes }}
+      # volumes:
+      #   {{- range .Values.volumes }}
+      #   - name: {{ .name }}
+      #     persistentVolumeClaim:
+      #       claimName: {{ .persistentVolumeClaim.claimName }}{{ $handleStringEnv }}
+      #   {{- end }}
+      # {{- end }}
+
+
+          # {{- if $.Values.volumeMounts }}
+          # volumeMounts:
+          #   {{- range $.Values.volumeMounts }}
+          #   - name: {{ .name }}
+          #     mountPath: {{ .mountPath }}
+          #   {{- end }}
+          # {{- end }}
+
+
+#           {{- if $.Values.volumeMounts }}
+#           volumeMounts:
+# {{ toYaml $.Values.volumeMounts | indent 12 }}
+#           {{- end }}
+
+#       {{- if .Values.volumes }}
+#       volumes:
+# {{ toYaml .Values.volumes | indent 8 }}
+#       {{- end }}
+
+          # envFrom:
+          #   - configMapRef:
+          #       name: {{ include "helm-common.fullname" $ }}
+
+            # {{- range $.Values.envVariables }}
+            # - name: {{ .name }}
+            #   value: {{ .value }}
+            # {{- end }}
+envVariablesServices:
+  redis:
+    - enable: false
+      envHost: REDIS_HOST
+      envPort: REDIS_PORT
+      envDatabase: REDIS_DATABASE
+      envPassword: REDIS_PASSWORD
+  rabbitmq:
+    - enable: false
+      envHost: RABBITMQ_HOST
+      envPort: RABBITMQ_PORT
+      envUser: RABBITMQ_USERNAME
+      envPassword: RABBITMQ_PASSWORD
+      account:
+        key_username: service-username
+        key_password: service-password
+  mysql:
+    - enable: false
+      envHost: MYSQL_HOST
+      envPort: MYSQL_PORT
+      envUser: MYSQL_USERNAME
+      envPassword: MYSQL_PASSWORD
+      account:
+        key_username: service-username
+        key_password: service-password
+  mongo:
+    - enable: false
+      envHost: MONGO_HOST
+      envPort: MONGO_PORT
+      envUser: MONGO_USERNAME
+      envPassword: MONGO_PASSWORD
+      account:
+        key_username: service-username
+        key_password: service-password
+  kafka:
+    enable: false
+  solr_master: 
+    - enable: false
+      envHost: SOLR_MASTER_HOST
+      envPort: SOLR_MASTER_PORT
+      envUser: SOLR_MASTER_USERNAME
+      envPassword: SOLR_MASTER_PASSWORD
+      account:
+        key_username: service-username
+        key_password: service-password
+  solr_topic:
+    - enable: false
+      envHost: SOLR_TOPIC_HOST
+      envPort: SOLR_TOPIC_PORT
+      envUser: SOLR_TOPIC_USERNAME
+      envPassword: SOLR_TOPIC_PASSWORD
+      account:
+        key_username: service-username
+        key_password: service-password
+
+cluster: "ovh" ### Deploy to "k8s-ovh | k8s-local"
+
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: kong
+  paths: [ '/' ]
+  hostProduction:
+    - helm-common.example.com
+  hostTesting: 
+    - helm-common-testing.example.com
+  hostStaging: 
+    - helm-common-staging.example.com
+
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+   cpu: 100m
+   memory: 128Mi
+  requests:
+   cpu: 100m
+   memory: 128Mi
+
+# nodeSelector: 
+#   node-type: "app"
+
+# tolerations:
+#   - key: node-type
+#     value: rnd
+#     effect: NoSchedule
+#   - operator: Exists
+#     effect: NoSchedule
+#   - operator: Exists
+#     effect: NoExecute
+affinity: {}
+
+
+workload:
+  # -- kind of workload, support Deployment/StatefulSet
+  kind: Deployment
+
+## config variables deploy
+# envVariables:
+#   KAFKA_BOOTSTRAP_SERVERS: "kafka01:9092,kafka02:9092,kafka03:9092"
+#   KAFKA_COLLECTOR_GROUP_ID: "rnd.trend_spotter_prod"
+#   KAFKA_COLLECTOR_AUTO_OFFSET_RESET: "earliest"
+#   KAFKA_COLLECTOR_AUTO_COMMIT: "False"
+#   KAFKA_COLLECTOR_NUM_CONSUMER: "32"
+#   KAFKA_COLLECTOR_BATCH_SIZE: "1000"
+#   KAFKA_COLLECTOR_INTERVAL_TIME: "5"
+#   KAFKA_WRITER_GROUP_ID: "rnd.clean_mention_prod"
+#   KAFKA_WRITER_AUTO_OFFSET_RESET: "earliest"
+#   KAFKA_WRITER_AUTO_COMMIT: "False"
+#   KAFKA_WRITER_NUM_PARTITION: "3"
+#   KAFKA_WRITER_BATCH_SIZE: "10000"
+#   KAFKA_WRITER_INTERVAL_TIME: "2"
+#   KAFKA_WRITER_CONSUMER_TIMEOUT: "120"
+#   KAFKA_WRITER_WRITER_TYPE: "disk"

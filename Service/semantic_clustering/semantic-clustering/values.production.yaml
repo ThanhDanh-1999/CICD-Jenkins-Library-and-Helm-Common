@@ -1,0 +1,19 @@
+helm-common-team-rnd:
+  environment: production
+  tolerations:
+    - key: node-type-rnd
+      value: rnd-prod
+      effect: NoSchedule
+  # config variables deploy
+  envVariables:
+    # config solr
+    SOLR_TIMEOUT: "120"
+    # config rabbitmq
+    RABBIT_MQ_TOPIC_CLUSTERING_REQUEST_QUEUE: "seeding_detectable_topic"
+    RABBIT_MQ_CLUSTERED_MENTION_STREAM_QUEUE: "app.socialheat.detected_seeding_topics"
+    RABBIT_MQ_TOPIC_CLUSTERING_INVALID_REQUEST_QUEUE: "topic_clustering_invalid_request"
+    RABBIT_MQ_TOPIC_CLUSTERING_STATUS_QUEUE: "app.socialheat.seeding_topic_request_status"
+    # config other
+    LOG_PATH: "/logs/clusters"
+    MAX_SENDING_MENTION: "64"
+    CLUSTERING_CORE: "1"

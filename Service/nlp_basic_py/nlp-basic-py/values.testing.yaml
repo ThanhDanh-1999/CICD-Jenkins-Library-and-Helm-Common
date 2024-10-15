@@ -1,0 +1,5 @@
+helm-common-team-rnd:
+  environment: testing
+  # # config variables deploy
+  # envVariables:
+  #   TEST: "testing"

@@ -1,0 +1,6 @@
+dependencies:
+- name: helm-common-team-rnd
+  repository: oci://docker.io/danhnt
+  version: 0.1.0
+digest: sha256:4a470296664cf9591c4983297d88a7024bce00854c4d5d2c36122ed0f82542f5
+generated: "2023-07-25T10:41:08.273441884+07:00"

@@ -1,0 +1,300 @@
+
+{{- $handleStringEnv := include "helm-common-team-rnd.suffix" . -}}
+apiVersion: apps/v1
+kind: {{ .Values.workload.kind }}
+metadata:
+  name: {{ include "helm-common-team-rnd.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "helm-common-team-rnd.name" . }}
+    helm.sh/chart: {{ include "helm-common-team-rnd.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  revisionHistoryLimit: 3
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "helm-common-team-rnd.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+      labels:
+        app.kubernetes.io/name: {{ include "helm-common-team-rnd.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+      - name: k8s-registry
+      containers:
+      {{- range .Values.containers }}
+      {{- if .enable }}
+        - name: {{ .name }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["/bin/sh"]
+          args: ["-c", "{{ .script }}"]
+          env:
+            - name: NODE_ENV
+              value: {{ $.Values.environment }}
+
+            {{- range $.Values.envVariablesServices.solr_topic }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-topic-secret{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-topic-secret{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-topic-secret{{ $handleStringEnv }}
+                  key: {{ .account.key_username }}
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-topic-secret{{ $handleStringEnv }}
+                  key: {{ .account.key_password }}
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.solr_master }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-master-secret{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-master-secret{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-master-secret{{ $handleStringEnv }}
+                  key: {{ .account.key_username }}
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: solr-master-secret{{ $handleStringEnv }}
+                  key: {{ .account.key_password }}
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.redis }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envDatabase }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis{{ $handleStringEnv }}
+                  key: db
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis{{ $handleStringEnv }}
+                  key: password
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.redis_stack }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis-stack{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis-stack{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envDatabase }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis-stack{{ $handleStringEnv }}
+                  key: db
+            - name: {{ .envUsername }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis-stack{{ $handleStringEnv }}
+                  key: username
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: redis-stack{{ $handleStringEnv }}
+                  key: password
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.rabbitmq }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq{{ $handleStringEnv }}
+                  key: {{ .account.key_username }}
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq{{ $handleStringEnv }}
+                  key: {{ .account.key_password }}
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.mysql }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql{{ $handleStringEnv }}
+                  key: mysql-host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql{{ $handleStringEnv }}
+                  key: mysql-port
+            - name: {{ .envUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql{{ $handleStringEnv }}
+                  key: mysql-user
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: mysql{{ $handleStringEnv }}
+                  key: mysql-password
+            {{- end }}
+            {{- end }}
+
+            {{- range $.Values.envVariablesServices.mongo }}
+            {{- if .enable }}
+            - name: {{ .envHost }}
+              valueFrom:
+                secretKeyRef:
+                  name: mongo{{ $handleStringEnv }}
+                  key: host
+            - name: {{ .envPort }}
+              valueFrom:
+                secretKeyRef:
+                  name: mongo{{ $handleStringEnv }}
+                  key: port
+            - name: {{ .envUser }}
+              valueFrom:
+                secretKeyRef:
+                  name: mongo{{ $handleStringEnv }}
+                  key: {{ .account.key_username }}
+            - name: {{ .envPassword }}
+              valueFrom:
+                secretKeyRef:
+                  name: mongo{{ $handleStringEnv }}
+                  key: {{ .account.key_password }}
+            {{- end }}
+            {{- end }}
+            {{- range $secret := $.Values.envVariablesServices.secret_source }}
+            {{- if .enable }}
+            {{- range $key, $value := $secret.envs }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret.name }}{{ $handleStringEnv }}
+                  key: {{ $value }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- range $key, $value := $.Values.envVariables }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ $.Values.service.port }}
+              protocol: TCP
+          {{- if .metric_port }}
+            - name: metrics
+              containerPort: {{ .metric_port }}
+              protocol: TCP  
+          {{- end }} 
+          {{- if .healthCheckApi }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- end }}
+          resources:
+{{ toYaml $.Values.resources | indent 12 }}
+
+          {{- if $.Values.volumeMounts }}
+          volumeMounts:
+            {{- range $.Values.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+          {{- end }}
+
+      {{- end }}
+      {{- end }}
+
+      {{- if .Values.volumes }}
+      volumes:
+        {{- range .Values.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .persistentVolumeClaim.claimName }}{{ $handleStringEnv }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.envVariablesServices.kafka.enable }}
+      hostAliases:
+        - ip: 15.235.83.103
+          hostnames:
+            - kafka01
+        - ip: 15.235.83.104
+          hostnames:
+            - kafka02
+        - ip: 15.235.83.111
+          hostnames:
+            - kafka03
+      {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

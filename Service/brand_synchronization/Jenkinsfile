@@ -1,0 +1,5 @@
+#!groovy
+@Library('jenkins-library-global-team-rnd@master')_
+jenkinsPipelineCommon(
+  app_name:"brand-synchronization",
+  src_repo_url:"ssh://git@git.example.com/team-RND/brand_synchronization.git")

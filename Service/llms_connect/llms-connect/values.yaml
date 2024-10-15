@@ -1,0 +1,143 @@
+helm-common-team-rnd:
+  environment: testing
+  # .Release.Name = your-service-name-testing
+  replicaCount: 1
+  image:
+    repository: danhnt/llms-connect-testing
+    tag: latest
+
+  containers:
+    - name: "service"
+      enable: true 
+      script: "./scripts/run_service.sh"
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+  podAnnotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '8000'
+
+  persistence:
+    ## pvc name default: .Release.Name = your-service-name-testing
+    enabled: false
+    storageClass: "nfs-client"
+    accessModes:
+      - ReadWriteMany
+    size: 8Gi
+
+  # volumes:
+  #   - name: pvc-store
+  #     persistentVolumeClaim:
+  #       claimName: llms-connect ## pvc name default: .Release.Name = your-service-name-testing
+
+  # volumeMounts:
+  #   - name: pvc-store
+  #     mountPath: /logs
+
+  envVariablesServices:
+    redis:
+      - enable: false
+        envHost: REDIS_HOST
+        envPort: REDIS_PORT
+        envDatabase: REDIS_DB
+        envPassword: REDIS_PASSWORD
+    rabbitmq:
+      - enable: false
+        envHost: RABBIT_MQ_HOST
+        envPort: RABBIT_MQ_PORT
+        envUser: RABBIT_MQ_USERNAME
+        envPassword: RABBIT_MQ_PASSWORD
+        account:
+          key_username: llms-connect-username
+          key_password: llms-connect-password
+    mysql:
+      - enable: false
+        envHost: MYSQL_HOST
+        envPort: MYSQL_PORT
+        envUser: MYSQL_USER
+        envPassword: MYSQL_PASSWORD
+        account:
+          key_username: llms-connect-username
+          key_password: llms-connect-password
+    mongo:
+      - enable: false
+        envHost: MONGODB_HOST
+        envPort: MONGODB_PORT
+        envUser: MONGODB_USERNAME
+        envPassword: MONGODB_PASSWORD
+        account:
+          key_username: llms-connect-username
+          key_password: llms-connect-password
+    kafka:
+      enable: false
+    solr_master: 
+      - enable: false
+        envHost: SOLR_MASTER_HOST
+        envPort: SOLR_MASTER_PORT
+        envUser: SOLR_MASTER_USERNAME
+        envPassword: SOLR_MASTER_PASSWORD
+        account:
+          key_username: llms-connect-username
+          key_password: llms-connect-password
+    solr_topic:
+      - enable: false
+        envHost: SOLR_TOPIC_HOST
+        envPort: SOLR_TOPIC_PORT
+        envUser: SOLR_TOPIC_USERNAME
+        envPassword: SOLR_TOPIC_PASSWORD
+        account:
+          key_username: llms-connect-username
+          key_password: llms-connect-password
+    secret_source:
+      - enable: true
+        name: llms-connect
+        envs:
+          DATA_DOMAIN_JWT_SECRET_KEY: data_domain_jwt_secret_key
+          OPENAI_API_KEY: openai_api_key
+
+  cluster: "ovh" ### Deploy to "k8s-ovh | k8s-local"
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: kong
+    paths: [ '/' ]
+    hostProduction:
+      - llms-connect.example.com
+    hostTesting: 
+      - llms-connect-testing.datatrend.io
+    hostStaging: 
+      - llms-connect-staging.example.com
+
+
+  # resources:
+  #   limits:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  nodeSelector: 
+    node-type: "rnd"
+
+  tolerations:
+    - key: node-type
+      value: rnd
+      effect: NoSchedule
+    # - operator: Exists
+    #   effect: NoSchedule
+    # - operator: Exists
+    #   effect: NoExecute
+  affinity: {}
+
+
+  workload:
+    # -- kind of workload, support Deployment/StatefulSet
+    kind: Deployment
+
+  # # config variables deploy
+  # envVariables:
+  #   TEST_TEST: "test-test"
